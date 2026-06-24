@@ -1,4 +1,4 @@
--- SpaceBerq | Ringta GUI v74 (С размытием и темами)
+-- SpaceBerq | Ringta GUI v75 (Исправленное переключение)
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
@@ -424,7 +424,7 @@ local function CreateSwitch(parent, text, y, desc)
 end
 
 -- ============================================
--- КНОПКА СТЕКЛА (GLASS MODE)
+-- КНОПКА СТЕКЛА
 -- ============================================
 local function CreateGlassToggle(parent, y)
     local card = Instance.new("Frame")
@@ -494,12 +494,12 @@ local function CreateGlassToggle(parent, y)
 end
 
 -- ============================================
--- КНОПКИ СМЕНЫ ТЕМ
+-- КНОПКИ ТЕМ
 -- ============================================
-local function CreateThemeButton(parent, text, color, y)
+local function CreateThemeButton(parent, text, color, x, y)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.25, 0, 0, 26)
-    btn.Position = UDim2.new(0.05 + (y-1)*0.27, 0, 0, 10)
+    btn.Size = UDim2.new(0.25, 0, 0, 24)
+    btn.Position = UDim2.new(0.05 + (x-1)*0.25, 0, 0, y)
     btn.BackgroundColor3 = color
     btn.BackgroundTransparency = 0.2
     btn.Text = text
@@ -517,12 +517,13 @@ local function CreateThemeButton(parent, text, color, y)
     btn.MouseButton1Click:Connect(function()
         MainFrame.BackgroundColor3 = color
     end)
-    return btn
 end
 
 -- ============================================
--- ЗАПОЛНЕНИЕ КОНТЕНТА
+-- КОНТЕНТ ВКЛАДОК (ВСЕ В ОДНОМ МЕСТЕ)
 -- ============================================
+local allContents = {}
+
 -- Home
 local HomeContent = Instance.new("ScrollingFrame")
 HomeContent.Size = UDim2.new(1, 0, 1, 0)
@@ -532,6 +533,7 @@ HomeContent.ScrollBarThickness = 4
 HomeContent.ScrollBarImageColor3 = Color3.fromRGB(80, 40, 140)
 HomeContent.Visible = true
 HomeContent.Parent = RightPanel
+allContents[1] = HomeContent
 
 local infoCard = Instance.new("Frame")
 infoCard.Size = UDim2.new(0.9, 0, 0, 32)
@@ -612,6 +614,7 @@ CombatContent.ScrollBarThickness = 4
 CombatContent.ScrollBarImageColor3 = Color3.fromRGB(80, 40, 140)
 CombatContent.Visible = false
 CombatContent.Parent = RightPanel
+allContents[2] = CombatContent
 
 CreateSwitch(CombatContent, "Silent Aim", 10, "Авто-наведение")
 CreateSwitch(CombatContent, "Kill Aura", 50, "Убивает врагов")
@@ -627,6 +630,7 @@ FarmContent.ScrollBarThickness = 4
 FarmContent.ScrollBarImageColor3 = Color3.fromRGB(80, 40, 140)
 FarmContent.Visible = false
 FarmContent.Parent = RightPanel
+allContents[3] = FarmContent
 
 CreateSwitch(FarmContent, "Auto Farm", 10, "Рубка деревьев")
 CreateSwitch(FarmContent, "Auto Heal", 50, "Лечит при HP < 30")
@@ -642,16 +646,14 @@ MiscContent.ScrollBarThickness = 4
 MiscContent.ScrollBarImageColor3 = Color3.fromRGB(80, 40, 140)
 MiscContent.Visible = false
 MiscContent.Parent = RightPanel
+allContents[4] = MiscContent
 
 CreateSwitch(MiscContent, "Sprint", 10, "Ускоренный бег")
 CreateSwitch(MiscContent, "Fly Mode", 50, "Режим полёта")
 CreateSwitch(MiscContent, "ESP", 90, "Подсветка ресурсов")
 CreateSwitch(MiscContent, "No Fog", 130, "Убирает туман")
-
--- Glass Mode
 CreateGlassToggle(MiscContent, 170)
 
--- Themes
 local ThemeLabel = Instance.new("TextLabel")
 ThemeLabel.Size = UDim2.new(0.9, 0, 0, 20)
 ThemeLabel.Position = UDim2.new(0.05, 0, 0, 210)
@@ -663,16 +665,14 @@ ThemeLabel.Font = Enum.Font.GothamBold
 ThemeLabel.TextXAlignment = Enum.TextXAlignment.Left
 ThemeLabel.Parent = MiscContent
 
-CreateThemeButton(MiscContent, "Фиолет", Color3.fromRGB(40, 20, 60), 1)
-CreateThemeButton(MiscContent, "Красный", Color3.fromRGB(70, 15, 15), 2)
-CreateThemeButton(MiscContent, "Синий", Color3.fromRGB(15, 30, 70), 3)
+CreateThemeButton(MiscContent, "Фиолет", Color3.fromRGB(40, 20, 60), 1, 235)
+CreateThemeButton(MiscContent, "Красный", Color3.fromRGB(70, 15, 15), 2, 235)
+CreateThemeButton(MiscContent, "Синий", Color3.fromRGB(15, 30, 70), 3, 235)
 
-MiscContent.CanvasSize = UDim2.new(0, 0, 0, 270)
-
-local allContents = {HomeContent, CombatContent, FarmContent, MiscContent}
+MiscContent.CanvasSize = UDim2.new(0, 0, 0, 280)
 
 -- ============================================
--- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+-- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК (ПРОСТОЕ И РАБОЧЕЕ)
 -- ============================================
 local function SwitchTab(index)
     for i, btn in pairs(btnObjects) do
@@ -697,4 +697,4 @@ for i, btn in pairs(btnObjects) do
     end)
 end
 
-print("Ringta GUI v74 загружена! С размытием, стеклом и темами.")
+print("Ringta GUI v75 загружена! Переключение исправлено.")
