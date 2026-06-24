@@ -1,21 +1,56 @@
--- Astra Hub (Ringta Edition) — Финальная рабочая
+-- Astra Hub (Ringta Edition) — С отдельными настройками
+local Settings = loadstring(game:HttpGet("https://raw.githubusercontent.com/Raphatlia/Astra-Hub/main/settings.lua"))()
+
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
+-- ===== ИСПОЛЬЗУЕМ НАСТРОЙКИ =====
+getgenv().AstraSettings = getgenv().AstraSettings or {
+    Transparency = Settings.Transparency,
+    Theme = Settings.ThemeName
+}
+local UserSettings = getgenv().AstraSettings
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AstraGUI"
 ScreenGui.Parent = CoreGui
 ScreenGui.ResetOnSpawn = false
 
--- ===== ОСНОВНОЕ ОКНО (ВИДИМО СРАЗУ) =====
+-- ===== ИКОНКА (СПРЯТАНА) =====
+local Icon = Instance.new("ImageButton")
+Icon.Size = UDim2.new(0, 45, 0, 45)
+Icon.Position = UDim2.new(0.02, 0, 0.02, 0)
+Icon.AnchorPoint = Vector2.new(0, 0)
+Icon.BackgroundColor3 = Settings.Theme
+Icon.BackgroundTransparency = 0.2
+Icon.BorderSizePixel = 2
+Icon.BorderColor3 = Settings.Theme
+Icon.Image = Settings.Icon
+Icon.Parent = ScreenGui
+Icon.Visible = false
+
+local IconCorner = Instance.new("UICorner")
+IconCorner.CornerRadius = UDim.new(0, 12)
+IconCorner.Parent = Icon
+
+local IconText = Instance.new("TextLabel")
+IconText.Size = UDim2.new(1, 0, 1, 0)
+IconText.BackgroundTransparency = 1
+IconText.Text = "✦"
+IconText.TextColor3 = Color3.fromRGB(255, 255, 255)
+IconText.TextSize = 24
+IconText.Font = Enum.Font.GothamBold
+IconText.Parent = Icon
+
+-- ===== ОСНОВНОЕ ОКНО =====
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 420, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -210, 0.5, -200)
-MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-MainFrame.BackgroundTransparency = 0.05
+MainFrame.Size = UDim2.new(0, Settings.Width, 0, Settings.Height)
+MainFrame.Position = UDim2.new(0.5, -Settings.Width/2, 0.5, -Settings.Height/2)
+MainFrame.BackgroundColor3 = Settings.Theme
+MainFrame.BackgroundTransparency = UserSettings.Transparency and Settings.TransparencyValue or 0
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
 MainFrame.Visible = true
@@ -36,7 +71,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(0.4, 0, 1, 0)
 Title.Position = UDim2.new(0.05, 0, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "✦ ASTRA HUB"
+Title.Text = Settings.Title
 Title.TextColor3 = Color3.fromRGB(210, 170, 255)
 Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
@@ -113,7 +148,7 @@ end)
 
 -- ===== САЙДБАР =====
 local LeftPanel = Instance.new("Frame")
-LeftPanel.Size = UDim2.new(0, 115, 1, -45)
+LeftPanel.Size = UDim2.new(0, Settings.SidebarWidth, 1, -45)
 LeftPanel.Position = UDim2.new(0, 0, 0, 45)
 LeftPanel.BackgroundColor3 = Color3.fromRGB(12, 12, 20)
 LeftPanel.BackgroundTransparency = 0.2
@@ -143,7 +178,7 @@ ProfileCorner.Parent = ProfileFrame
 local Avatar = Instance.new("Frame")
 Avatar.Size = UDim2.new(0, 28, 0, 28)
 Avatar.Position = UDim2.new(0.08, 0, 0.08, 0)
-Avatar.BackgroundColor3 = Color3.fromRGB(80, 40, 140)
+Avatar.BackgroundColor3 = Settings.Theme
 Avatar.BackgroundTransparency = 0.3
 Avatar.BorderSizePixel = 1
 Avatar.BorderColor3 = Color3.fromRGB(60, 60, 80)
@@ -184,20 +219,20 @@ Arrow.Font = Enum.Font.GothamBold
 Arrow.Parent = ProfileFrame
 
 -- ===== КНОПКИ =====
-local btnData = {"🏠 Home", "⚔️ Combat", "🌾 Farm", "⚙️ Settings"}
+local btnData = Settings.Tabs
 local btnObjects = {}
 
 for i = 1, #btnData do
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.85, 0, 0, 30)
     btn.Position = UDim2.new(0.075, 0, 0, 8 + (i-1) * 36)
-    btn.BackgroundColor3 = (i == 1) and Color3.fromRGB(80, 40, 140) or Color3.fromRGB(30, 30, 40)
+    btn.BackgroundColor3 = (i == 1) and Settings.Theme or Color3.fromRGB(30, 30, 40)
     btn.Text = btnData[i]
     btn.TextColor3 = (i == 1) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 200, 220)
     btn.TextSize = 14
     btn.Font = Enum.Font.Gotham
     btn.BorderSizePixel = 1
-    btn.BorderColor3 = (i == 1) and Color3.fromRGB(80, 40, 140) or Color3.fromRGB(40, 40, 50)
+    btn.BorderColor3 = (i == 1) and Settings.Theme or Color3.fromRGB(40, 40, 50)
     btn.Parent = LeftPanel
     
     local btnCorner = Instance.new("UICorner")
@@ -209,8 +244,8 @@ end
 
 -- ===== ПРАВАЯ ПАНЕЛЬ =====
 local RightPanel = Instance.new("Frame")
-RightPanel.Size = UDim2.new(1, -130, 1, -45)
-RightPanel.Position = UDim2.new(0, 120, 0, 45)
+RightPanel.Size = UDim2.new(1, -(Settings.SidebarWidth + 15), 1, -45)
+RightPanel.Position = UDim2.new(Settings.SidebarWidth + 5, 0, 0, 45)
 RightPanel.BackgroundTransparency = 1
 RightPanel.Parent = MainFrame
 
@@ -249,13 +284,124 @@ local settingsContent = CreateContent("Settings")
 homeContent.Visible = true
 allContents = {homeContent, combatContent, farmContent, settingsContent}
 
--- ===== ПЕРЕКЛЮЧЕНИЕ =====
+-- ===== НАСТРОЙКИ В SETTINGS =====
+local settingsFrame = settingsContent
+settingsFrame.CanvasSize = UDim2.new(0, 0, 0, 300)
+
+local settingsLabel = Instance.new("TextLabel")
+settingsLabel.Size = UDim2.new(1, 0, 0, 40)
+settingsLabel.Position = UDim2.new(0, 0, 0, 5)
+settingsLabel.BackgroundTransparency = 1
+settingsLabel.Text = "⚙️ Настройки"
+settingsLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+settingsLabel.TextSize = 18
+settingsLabel.Font = Enum.Font.GothamBold
+settingsLabel.TextXAlignment = Enum.TextXAlignment.Center
+settingsLabel.Parent = settingsFrame
+
+-- ===== ПРОЗРАЧНОСТЬ =====
+local transFrame = Instance.new("Frame")
+transFrame.Size = UDim2.new(0.9, 0, 0, 60)
+transFrame.Position = UDim2.new(0.05, 0, 0, 50)
+transFrame.BackgroundTransparency = 1
+transFrame.Parent = settingsFrame
+
+local transLabel = Instance.new("TextLabel")
+transLabel.Size = UDim2.new(0.6, 0, 0, 30)
+transLabel.Position = UDim2.new(0, 0, 0, 0)
+transLabel.BackgroundTransparency = 1
+transLabel.Text = "🪟 Прозрачность"
+transLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+transLabel.TextSize = 14
+transLabel.Font = Enum.Font.GothamBold
+transLabel.TextXAlignment = Enum.TextXAlignment.Left
+transLabel.Parent = transFrame
+
+local transToggle = Instance.new("TextButton")
+transToggle.Size = UDim2.new(0.2, 0, 0, 30)
+transToggle.Position = UDim2.new(0.75, 0, 0, 0)
+transToggle.BackgroundColor3 = UserSettings.Transparency and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+transToggle.BackgroundTransparency = 0.2
+transToggle.Text = UserSettings.Transparency and "ON" or "OFF"
+transToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+transToggle.TextSize = 14
+transToggle.Font = Enum.Font.GothamBold
+transToggle.BorderSizePixel = 1
+transToggle.BorderColor3 = Color3.fromRGB(50, 50, 60)
+transToggle.Parent = transFrame
+
+local transCorner = Instance.new("UICorner")
+transCorner.CornerRadius = UDim.new(0, 6)
+transCorner.Parent = transToggle
+
+transToggle.MouseButton1Click:Connect(function()
+    UserSettings.Transparency = not UserSettings.Transparency
+    transToggle.Text = UserSettings.Transparency and "ON" or "OFF"
+    transToggle.BackgroundColor3 = UserSettings.Transparency and Color3.fromRGB(50, 150, 255) or Color3.fromRGB(40, 40, 60)
+    MainFrame.BackgroundTransparency = UserSettings.Transparency and Settings.TransparencyValue or 0
+end)
+
+-- ===== ТЕМЫ =====
+local themeFrame = Instance.new("Frame")
+themeFrame.Size = UDim2.new(0.9, 0, 0, 80)
+themeFrame.Position = UDim2.new(0.05, 0, 0, 120)
+themeFrame.BackgroundTransparency = 1
+themeFrame.Parent = settingsFrame
+
+local themeLabel = Instance.new("TextLabel")
+themeLabel.Size = UDim2.new(1, 0, 0, 30)
+themeLabel.BackgroundTransparency = 1
+themeLabel.Text = "🎨 Темы"
+themeLabel.TextColor3 = Color3.fromRGB(200, 200, 220)
+themeLabel.TextSize = 14
+themeLabel.Font = Enum.Font.GothamBold
+themeLabel.TextXAlignment = Enum.TextXAlignment.Left
+themeLabel.Parent = themeFrame
+
+local themeColors = Settings.Themes
+local themeButtons = {}
+
+for i, data in pairs(themeColors) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.17, 0, 0, 30)
+    btn.Position = UDim2.new(0.02 + (i-1) * 0.19, 0, 0, 35)
+    btn.BackgroundColor3 = data[2]
+    btn.BackgroundTransparency = 0.2
+    btn.Text = data[1]
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 12
+    btn.Font = Enum.Font.GothamBold
+    btn.BorderSizePixel = (UserSettings.Theme == data[1]) and 2 or 1
+    btn.BorderColor3 = (UserSettings.Theme == data[1]) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(50, 50, 60)
+    btn.Parent = themeFrame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        UserSettings.Theme = data[1]
+        MainFrame.BackgroundColor3 = data[2]
+        for _, b in pairs(themeButtons) do
+            b.BorderSizePixel = 1
+            b.BorderColor3 = Color3.fromRGB(50, 50, 60)
+        end
+        btn.BorderSizePixel = 2
+        btn.BorderColor3 = Color3.fromRGB(255, 255, 255)
+    end)
+    
+    table.insert(themeButtons, btn)
+end
+
+settingsFrame.CanvasSize = UDim2.new(0, 0, 0, 220)
+
+-- ===== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК =====
 local function SwitchTab(index)
     for i, btn in pairs(btnObjects) do
         if i == index then
-            btn.BackgroundColor3 = Color3.fromRGB(80, 40, 140)
+            btn.BackgroundColor3 = Settings.Theme
             btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            btn.BorderColor3 = Color3.fromRGB(80, 40, 140)
+            btn.BorderColor3 = Settings.Theme
         else
             btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
             btn.TextColor3 = Color3.fromRGB(200, 200, 220)
@@ -273,4 +419,4 @@ for i, btn in pairs(btnObjects) do
     end)
 end
 
-print("✦ Astra Hub (Ringta Edition) загружена!")
+print("✦ Astra Hub (Ringta Edition) с отдельными настройками загружена!")
