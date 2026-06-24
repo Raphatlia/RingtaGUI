@@ -7,13 +7,6 @@
 > **Премиум-интерфейс для любых игр Roblox.**  
 > Стильный дизайн, аккордеоны, темы, стекло и macOS-кнопки.
 
----
-
-## 📸 Скриншоты
-
-| Главное меню | Настройки |
-|--------------|-----------|
-| ![](https://via.placeholder.com/400x300/1a1a2e/ffffff?text=Ringta+GUI+Main) | ![](https://via.placeholder.com/400x300/1a1a2e/ffffff?text=Ringta+GUI+Settings) |
 
 ---
 
