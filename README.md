@@ -37,3 +37,27 @@
 ### 1. Загрузи скрипт через Delta
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Raphatlia/RingtaGUI/main/main.lua"))()
+RingtaGUI/
+├── main.lua          # Основной скрипт
+├── README.md         # Это описание
+└── LICENSE           # Лицензия (опционально)
+
+---
+
+⚠️ Дисклеймер
+
+Этот скрипт создан в образовательных целях.
+Использование в играх может нарушать правила Roblox.
+Автор не несёт ответственности за возможные последствия.
+
+---
+
+🤝 Связь
+
+· GitHub: Raphatlia
+· Discord: https://discord.gg/ringta
+
+---
+
+⭐ Поддержать проект
+Если тебе нравится этот хаб, поставь ⭐ звезду на GitHub и поделись с друзьями!
