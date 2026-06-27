@@ -1,14 +1,16 @@
--- ASTRA HUB V1.0 — ПРЕМИУМ ФИНАЛ (РАБОЧАЯ ВЕРСИЯ)
+-- ASTRA HUB V1.0 — ПРЕМИУМ ФИНАЛ (ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ)
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
 -- ============================================
--- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+-- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (ВИДНЫ В МОДУЛЯХ)
 -- ============================================
-getgenv().espEnabled = false
 getgenv().AstraHubLoaded = false
+getgenv().espEnabled = false
+getgenv().espThread = nil
+getgenv().espDistance = 1000
 
 -- ============================================
 -- GUI (МЕНЮ)
@@ -612,7 +614,7 @@ infoLabel.Parent = infoCard
 settingsContent.CanvasSize = UDim2.new(0, 0, 0, 280)
 
 -- ============================================
--- VISUALS
+-- VISUALS (СВИТЧЕР + ПОЛЗУНОК)
 -- ============================================
 local visualsContent = contents[3]
 visualsContent.CanvasSize = UDim2.new(0, 0, 0, 250)
@@ -688,10 +690,16 @@ espToggle.InputBegan:Connect(function(input)
             espToggle.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
             espCircle.Position = UDim2.new(1, -25, 0.5, 0)
             getgenv().espEnabled = true
+            if getgenv().toggleESP then
+                getgenv().toggleESP(true)
+            end
         else
             espToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 75)
             espCircle.Position = UDim2.new(0, 3, 0.5, 0)
             getgenv().espEnabled = false
+            if getgenv().toggleESP then
+                getgenv().toggleESP(false)
+            end
         end
     end
 end)
@@ -841,7 +849,7 @@ for i, btn in pairs(btnObjects) do
 end
 
 -- ============================================
--- ЗАГРУЗКА МОДУЛЯ ДЛЯ A DESERT
+-- ЗАГРУЗКА МОДУЛЕЙ
 -- ============================================
 local currentGameName = game.Name
 
