@@ -1,30 +1,8 @@
--- ASTRA HUB V1.0 — ПРЕМИУМ ФИНАЛ (ОБВОДКА + ИКОНКА + ИНФО-КАРТОЧКА)
+-- ASTRA HUB V1.0 — ПРЕМИУМ ФИНАЛ (АВТО-ЗАПУСК ПО game.Name)
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-
--- ============================================
--- ЗАГРУЗЧИК ИГРОВЫХ МОДУЛЕЙ
--- ============================================
-local GameID = game.PlaceId
-
-local GameModules = {
-    [107467295209358] = "https://raw.githubusercontent.com/Raphatlia/ASTRA-Hub/main/astrahub.lua",
-    [18934709778] = "https://raw.githubusercontent.com/Raphatlia/ASTRA-Hub/main/astrahub.lua",
-}
-
-getgenv().AstraHubLoaded = false
-
-if GameModules[GameID] then
-    print("[ASTRA] Загрузка модуля для игры ID: " .. GameID)
-    local success, err = pcall(function()
-        loadstring(game:HttpGet(GameModules[GameID]))()
-    end)
-    if not success then
-        warn("[ASTRA] Ошибка загрузки модуля: " .. tostring(err))
-    end
-end
 
 -- ============================================
 -- GUI (МЕНЮ)
@@ -63,7 +41,7 @@ floatingBtn.AnchorPoint = Vector2.new(0.5, 0)
 floatingBtn.BackgroundColor3 = Color3.fromRGB(15, 12, 25)
 floatingBtn.BackgroundTransparency = 0.1
 floatingBtn.BorderSizePixel = 2
-floatingBtn.BorderColor3 = Color3.fromRGB(138, 43, 226) -- ФИОЛЕТОВАЯ ОБВОДКА
+floatingBtn.BorderColor3 = Color3.fromRGB(138, 43, 226)
 floatingBtn.Text = "Open Script"
 floatingBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 floatingBtn.TextSize = 16
@@ -446,7 +424,7 @@ createAeroCard(featuresContent, "Auto Collect", 170, false)
 -- SETTINGS
 -- ============================================
 local settingsContent = contents[2]
-settingsContent.CanvasSize = UDim2.new(0, 0, 0, 280) -- Увеличен для инфо-карточки
+settingsContent.CanvasSize = UDim2.new(0, 0, 0, 280)
 
 local settingsLabel = Instance.new("TextLabel")
 settingsLabel.Size = UDim2.new(1, 0, 0, 35)
@@ -677,11 +655,301 @@ vLabel.TextXAlignment = Enum.TextXAlignment.Center
 vLabel.Parent = visualsContent
 
 -- ESP ПЕРЕМЕННЫЕ
-getgenv().espEnabled = false
-getgenv().espThread = nil
+local espEnabled = false
+local espThread = nil
 local espDistance = settings.ESPDistance or 1000
 
-getgenv().AstraHubLoaded = true
+-- ===== ФУНКЦИИ ESP =====
+local function createItemESP(instance, text, icon)
+    if instance:FindFirstChild("ESP_Item") then return end
+
+    local gui = Instance.new("BillboardGui")
+    gui.Name = "ESP_Item"
+    gui.Size = UDim2.new(0, 100, 0, 28)
+    gui.StudsOffset = Vector3.new(0, 1.8, 0)
+    gui.AlwaysOnTop = true
+    gui.Parent = instance
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 15, 45)
+    frame.BackgroundTransparency = 0.2
+    frame.BorderSizePixel = 0
+    frame.Parent = gui
+    local fCorner = Instance.new("UICorner")
+    fCorner.CornerRadius = UDim.new(0, 6)
+    fCorner.Parent = frame
+
+    local nameTag = Instance.new("TextLabel")
+    nameTag.Size = UDim2.new(1, 0, 1, 0)
+    nameTag.BackgroundTransparency = 1
+    nameTag.Text = icon .. " " .. text
+    nameTag.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameTag.TextSize = 11
+    nameTag.Font = Enum.Font.GothamBold
+    nameTag.Parent = frame
+end
+
+local function clearESP()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v.Name == "ESP_Item" then
+            v:Destroy()
+        end
+    end
+end
+
+local function runItemESP()
+    task.spawn(function()
+        while espEnabled do
+            task.wait(0.4)
+            if not espEnabled then break end
+            
+            local playerPos = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+            if not playerPos then continue end
+            
+            local espCount = 0
+            
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if not espEnabled then break end
+                if espCount >= 75 then break end
+                
+                if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then
+                    local model = obj.Parent
+                    local name = string.lower(model.Name)
+                    
+                    local objPos = obj.Position
+                    local distance = (playerPos.Position - objPos).Magnitude
+                    if distance > espDistance then continue end
+                    
+                    if model == LP.Character then continue end
+                    
+                    local isResource = false
+                    local icon = "📦"
+                    
+                    if string.find(name, "gas") or string.find(name, "fuel") or 
+                       string.find(name, "jerry") or string.find(name, "barrel") or 
+                       string.find(name, "oil") then
+                        isResource = true
+                        icon = "⛽"
+                    elseif string.find(name, "food") or string.find(name, "can") or 
+                       string.find(name, "bandage") or string.find(name, "med") or 
+                       string.find(name, "water") then
+                        isResource = true
+                        icon = "🥫"
+                    elseif string.find(name, "wheel") or string.find(name, "tire") then
+                        isResource = true
+                        icon = "⚙️"
+                    elseif string.find(name, "part") or string.find(name, "engine") or 
+                       string.find(name, "motor") or string.find(name, "battery") or 
+                       string.find(name, "radiator") or string.find(name, "scrap") then
+                        isResource = true
+                        icon = "🔧"
+                    elseif string.find(name, "gun") or string.find(name, "rifle") or 
+                       string.find(name, "shotgun") or string.find(name, "weapon") then
+                        isResource = true
+                        icon = "🔫"
+                    end
+
+                    if isResource then
+                        createItemESP(model, model.Name, icon)
+                        espCount = espCount + 1
+                    end
+                end
+            end
+        end
+    end)
+end
+
+local function toggleESP(state)
+    espEnabled = state
+    if espEnabled then
+        clearESP()
+        espThread = task.spawn(runItemESP)
+        print("[ASTRA] ESP включён")
+    else
+        if espThread then
+            task.cancel(espThread)
+            espThread = nil
+        end
+        clearESP()
+        print("[ASTRA] ESP выключен")
+    end
+end
+
+-- ===== СВИТЧЕР RESOURCE ESP =====
+local espCard = Instance.new("Frame")
+espCard.Size = UDim2.new(1, -12, 0, 54)
+espCard.Position = UDim2.new(0, 6, 0, 50)
+espCard.BackgroundColor3 = Color3.fromRGB(30, 28, 45)
+espCard.BackgroundTransparency = 0.3
+espCard.BorderSizePixel = 1
+espCard.BorderColor3 = Color3.fromRGB(255, 255, 255, 0.1)
+espCard.Parent = visualsContent
+local espCardCorner = Instance.new("UICorner")
+espCardCorner.CornerRadius = UDim.new(0, 10)
+espCardCorner.Parent = espCard
+
+local espBlur = Instance.new("BlurEffect")
+espBlur.Parent = espCard
+espBlur.Size = 2
+
+local espLabel = Instance.new("TextLabel")
+espLabel.Size = UDim2.new(0.6, 0, 1, 0)
+espLabel.Position = UDim2.new(0, 16, 0, 0)
+espLabel.BackgroundTransparency = 1
+espLabel.Text = "Resource ESP"
+espLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+espLabel.TextSize = 16
+espLabel.Font = Enum.Font.GothamBold
+espLabel.TextXAlignment = Enum.TextXAlignment.Left
+espLabel.Parent = espCard
+
+local espToggle = Instance.new("Frame")
+espToggle.Size = UDim2.new(0, 50, 0, 28)
+espToggle.Position = UDim2.new(1, -14, 0.5, 0)
+espToggle.AnchorPoint = Vector2.new(1, 0.5)
+espToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 75)
+espToggle.BackgroundTransparency = 0.1
+espToggle.BorderSizePixel = 0
+espToggle.Parent = espCard
+local espToggleCorner = Instance.new("UICorner")
+espToggleCorner.CornerRadius = UDim.new(1, 0)
+espToggleCorner.Parent = espToggle
+
+local espCircle = Instance.new("Frame")
+espCircle.Size = UDim2.new(0, 22, 0, 22)
+espCircle.Position = UDim2.new(0, 3, 0.5, 0)
+espCircle.AnchorPoint = Vector2.new(0, 0.5)
+espCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+espCircle.BackgroundTransparency = 0.05
+espCircle.BorderSizePixel = 0
+espCircle.Parent = espToggle
+local espCircleCorner = Instance.new("UICorner")
+espCircleCorner.CornerRadius = UDim.new(1, 0)
+espCircleCorner.Parent = espCircle
+
+local espOn = false
+espToggle.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        espOn = not espOn
+        if espOn then
+            espToggle.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+            espCircle.Position = UDim2.new(1, -25, 0.5, 0)
+            toggleESP(true)
+        else
+            espToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 75)
+            espCircle.Position = UDim2.new(0, 3, 0.5, 0)
+            toggleESP(false)
+        end
+    end
+end)
+
+-- ============================================
+-- ПОЛЗУНОК ESP DISTANCE
+-- ============================================
+local sliderCard = Instance.new("Frame")
+sliderCard.Size = UDim2.new(1, -12, 0, 64)
+sliderCard.Position = UDim2.new(0, 6, 0, 110)
+sliderCard.BackgroundColor3 = Color3.fromRGB(30, 28, 45)
+sliderCard.BackgroundTransparency = 0.3
+sliderCard.BorderSizePixel = 1
+sliderCard.BorderColor3 = Color3.fromRGB(255, 255, 255, 0.1)
+sliderCard.Parent = visualsContent
+local sliderCardCorner = Instance.new("UICorner")
+sliderCardCorner.CornerRadius = UDim.new(0, 10)
+sliderCardCorner.Parent = sliderCard
+
+local sliderBlur = Instance.new("BlurEffect")
+sliderBlur.Parent = sliderCard
+sliderBlur.Size = 2
+
+local sliderLabel = Instance.new("TextLabel")
+sliderLabel.Size = UDim2.new(0.6, 0, 1, 0)
+sliderLabel.Position = UDim2.new(0, 16, 0, 0)
+sliderLabel.BackgroundTransparency = 1
+sliderLabel.Text = "ESP Distance: " .. espDistance .. "m"
+sliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+sliderLabel.TextSize = 14
+sliderLabel.Font = Enum.Font.GothamBold
+sliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+sliderLabel.Parent = sliderCard
+
+local sliderTrack = Instance.new("Frame")
+sliderTrack.Size = UDim2.new(0, 90, 0, 6)
+sliderTrack.Position = UDim2.new(1, -14, 0.5, 0)
+sliderTrack.AnchorPoint = Vector2.new(1, 0.5)
+sliderTrack.BackgroundColor3 = Color3.fromRGB(60, 60, 75)
+sliderTrack.BorderSizePixel = 0
+sliderTrack.Parent = sliderCard
+local trackCorner = Instance.new("UICorner")
+trackCorner.CornerRadius = UDim.new(1, 0)
+trackCorner.Parent = sliderTrack
+
+local sliderFill = Instance.new("Frame")
+sliderFill.Size = UDim2.new(espDistance / 3000, 0, 1, 0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+sliderFill.BorderSizePixel = 0
+sliderFill.Parent = sliderTrack
+local fillCorner = Instance.new("UICorner")
+fillCorner.CornerRadius = UDim.new(1, 0)
+fillCorner.Parent = sliderFill
+
+local sliderKnob = Instance.new("TextButton")
+sliderKnob.Size = UDim2.new(0, 22, 0, 22)
+sliderKnob.Position = UDim2.new(espDistance / 3000, 0, 0.5, 0)
+sliderKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+sliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sliderKnob.BackgroundTransparency = 0.05
+sliderKnob.BorderSizePixel = 2
+sliderKnob.BorderColor3 = Color3.fromRGB(138, 43, 226)
+sliderKnob.Text = ""
+sliderKnob.Parent = sliderTrack
+local knobCorner = Instance.new("UICorner")
+knobCorner.CornerRadius = UDim.new(1, 0)
+knobCorner.Parent = sliderKnob
+
+local isDragging = false
+
+sliderKnob.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = true
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if not isDragging then return end
+    if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then return end
+    
+    local sliderPos = sliderTrack.AbsolutePosition
+    local sliderSize = sliderTrack.AbsoluteSize
+    local relativeX = math.clamp(input.Position.X - sliderPos.X, 0, sliderSize.X)
+    local newValue = math.floor((relativeX / sliderSize.X) * 3000)
+    newValue = math.clamp(newValue, 100, 3000)
+    
+    if newValue ~= espDistance then
+        espDistance = newValue
+        settings.ESPDistance = espDistance
+        shared.AstraSettings.ESPDistance = espDistance
+        
+        sliderLabel.Text = "ESP Distance: " .. espDistance .. "m"
+        sliderFill.Size = UDim2.new(espDistance / 3000, 0, 1, 0)
+        sliderKnob.Position = UDim2.new(espDistance / 3000, 0, 0.5, 0)
+        
+        if espEnabled then
+            toggleESP(false)
+            task.wait(0.1)
+            toggleESP(true)
+        end
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = false
+    end
+end)
+
+visualsContent.CanvasSize = UDim2.new(0, 0, 0, 250)
 
 -- ============================================
 -- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
@@ -723,4 +991,31 @@ for i, btn in pairs(btnObjects) do
     end)
 end
 
-print("[ASTRA] Премиум финал загружен! Ожидаем модуль для игры " .. GameID)
+-- ============================================
+-- АВТО-ЗАПУСК ESP ПО game.Name
+-- ============================================
+local currentGameName = game.Name
+
+if string.find(currentGameName, "A desrt") or string.find(currentGameName, "A Desrt") or string.find(currentGameName, "desrt") then
+    print("[ASTRA] Найдена игра: A desrt! Запускаю ESP...")
+    task.wait(2)
+    espEnabled = true
+    toggleESP(true)
+    if espToggle then
+        espToggle.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+        espCircle.Position = UDim2.new(1, -25, 0.5, 0)
+    end
+elseif string.find(currentGameName, "A Long Road") or string.find(currentGameName, "Long Road") then
+    print("[ASTRA] Найдена игра: A Long Road! Запускаю ESP...")
+    task.wait(2)
+    espEnabled = true
+    toggleESP(true)
+    if espToggle then
+        espToggle.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+        espCircle.Position = UDim2.new(1, -25, 0.5, 0)
+    end
+else
+    print("[ASTRA] Игра не из списка поддержки: " .. currentGameName)
+end
+
+print("[ASTRA] Премиум финал загружен! Игра: " .. currentGameName)
