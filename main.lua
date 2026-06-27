@@ -1,14 +1,13 @@
--- ASTRA HUB V1.0 — ГЛАВНЫЙ КАРКАС (ТОЛЬКО МЕНЮ)
+-- ASTRA HUB V1.0 — ПРЕМИУМ ФИНАЛ (РАБОЧАЯ ВЕРСИЯ)
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
 -- ============================================
--- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (видны из модулей)
+-- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
 -- ============================================
 getgenv().espEnabled = false
-getgenv().hudEnabled = false
 getgenv().AstraHubLoaded = false
 
 -- ============================================
@@ -39,7 +38,7 @@ local themeColorsList = {
 }
 
 -- ============================================
--- ПЛАВАЮЩАЯ КНОПКА (С ОБВОДКОЙ И ИКОНКОЙ)
+-- ПЛАВАЮЩАЯ КНОПКА
 -- ============================================
 local floatingBtn = Instance.new("TextButton")
 floatingBtn.Size = UDim2.new(0, 180, 0, 46)
@@ -64,7 +63,6 @@ local btnCorner = Instance.new("UICorner")
 btnCorner.CornerRadius = UDim.new(1, 0)
 btnCorner.Parent = floatingBtn
 
--- ИКОНКА ПЕРЕТАСКИВАНИЯ
 local dragIcon = Instance.new("TextLabel")
 dragIcon.Size = UDim2.new(0, 30, 1, 0)
 dragIcon.Position = UDim2.new(0, 10, 0, 0)
@@ -93,7 +91,7 @@ floatingBtn.MouseButton1Click:Connect(openMenu)
 floatingBtn.TouchTap:Connect(openMenu)
 
 -- ============================================
--- МЕНЮ
+-- ОСНОВНОЕ ОКНО
 -- ============================================
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "mainFrame"
@@ -153,7 +151,6 @@ versionText.TextSize = 11
 versionText.Font = Enum.Font.GothamBold
 versionText.Parent = versionTag
 
--- ПУЛЬСАЦИЯ V1.0
 task.spawn(function()
     while versionTag and versionTag.Parent do
         local tween1 = TweenService:Create(versionTag, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
@@ -215,7 +212,36 @@ btnGreen.MouseButton1Click:Connect(function()
 end)
 
 -- ============================================
--- ЛЕВАЯ ПАНЕЛЬ (ПРОЗРАЧНЫЕ КНОПКИ)
+-- ПЕРЕТАСКИВАНИЕ МЕНЮ
+-- ============================================
+local dragging = false
+local dragInput, mousePos, framePos
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        mousePos = input.Position
+        framePos = mainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - mousePos
+        mainFrame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+    end
+end)
+
+-- ============================================
+-- ЛЕВАЯ ПАНЕЛЬ
 -- ============================================
 local leftPanel = Instance.new("Frame")
 leftPanel.Size = UDim2.new(0, 100, 1, -44)
@@ -349,7 +375,7 @@ local function createAeroCard(parent, title, yPos, defaultOn, callback)
 end
 
 -- ============================================
--- FEATURES (ЗАГЛУШКИ)
+-- FEATURES
 -- ============================================
 local featuresContent = contents[1]
 featuresContent.CanvasSize = UDim2.new(0, 0, 0, 240)
@@ -586,7 +612,7 @@ infoLabel.Parent = infoCard
 settingsContent.CanvasSize = UDim2.new(0, 0, 0, 280)
 
 -- ============================================
--- VISUALS (ESP + ПОЛЗУНОК)
+-- VISUALS
 -- ============================================
 local visualsContent = contents[3]
 visualsContent.CanvasSize = UDim2.new(0, 0, 0, 250)
@@ -601,9 +627,6 @@ vLabel.TextSize = 16
 vLabel.Font = Enum.Font.GothamBold
 vLabel.TextXAlignment = Enum.TextXAlignment.Center
 vLabel.Parent = visualsContent
-
--- ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ESP =====
-getgenv().espDistance = settings.ESPDistance or 1000
 
 -- ===== СВИТЧЕР RESOURCE ESP =====
 local espCard = Instance.new("Frame")
@@ -676,6 +699,8 @@ end)
 -- ============================================
 -- ПОЛЗУНОК ESP DISTANCE
 -- ============================================
+local espDistance = settings.ESPDistance or 1000
+
 local sliderCard = Instance.new("Frame")
 sliderCard.Size = UDim2.new(1, -12, 0, 64)
 sliderCard.Position = UDim2.new(0, 6, 0, 110)
@@ -696,7 +721,7 @@ local sliderLabel = Instance.new("TextLabel")
 sliderLabel.Size = UDim2.new(0.6, 0, 1, 0)
 sliderLabel.Position = UDim2.new(0, 16, 0, 0)
 sliderLabel.BackgroundTransparency = 1
-sliderLabel.Text = "ESP Distance: " .. getgenv().espDistance .. "m"
+sliderLabel.Text = "ESP Distance: " .. espDistance .. "m"
 sliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 sliderLabel.TextSize = 14
 sliderLabel.Font = Enum.Font.GothamBold
@@ -715,7 +740,7 @@ trackCorner.CornerRadius = UDim.new(1, 0)
 trackCorner.Parent = sliderTrack
 
 local sliderFill = Instance.new("Frame")
-sliderFill.Size = UDim2.new(getgenv().espDistance / 3000, 0, 1, 0)
+sliderFill.Size = UDim2.new(espDistance / 3000, 0, 1, 0)
 sliderFill.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
 sliderFill.BorderSizePixel = 0
 sliderFill.Parent = sliderTrack
@@ -725,7 +750,7 @@ fillCorner.Parent = sliderFill
 
 local sliderKnob = Instance.new("TextButton")
 sliderKnob.Size = UDim2.new(0, 22, 0, 22)
-sliderKnob.Position = UDim2.new(getgenv().espDistance / 3000, 0, 0.5, 0)
+sliderKnob.Position = UDim2.new(espDistance / 3000, 0, 0.5, 0)
 sliderKnob.AnchorPoint = Vector2.new(0.5, 0.5)
 sliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 sliderKnob.BackgroundTransparency = 0.05
@@ -755,13 +780,15 @@ UserInputService.InputChanged:Connect(function(input)
     local newValue = math.floor((relativeX / sliderSize.X) * 3000)
     newValue = math.clamp(newValue, 100, 3000)
     
-    if newValue ~= getgenv().espDistance then
-        getgenv().espDistance = newValue
-        shared.AstraSettings.ESPDistance = newValue
+    if newValue ~= espDistance then
+        espDistance = newValue
+        settings.ESPDistance = espDistance
+        shared.AstraSettings.ESPDistance = espDistance
+        getgenv().espDistance = espDistance
         
-        sliderLabel.Text = "ESP Distance: " .. newValue .. "m"
-        sliderFill.Size = UDim2.new(newValue / 3000, 0, 1, 0)
-        sliderKnob.Position = UDim2.new(newValue / 3000, 0, 0.5, 0)
+        sliderLabel.Text = "ESP Distance: " .. espDistance .. "m"
+        sliderFill.Size = UDim2.new(espDistance / 3000, 0, 1, 0)
+        sliderKnob.Position = UDim2.new(espDistance / 3000, 0, 0.5, 0)
     end
 end)
 
@@ -814,16 +841,16 @@ for i, btn in pairs(btnObjects) do
 end
 
 -- ============================================
--- ЗАГРУЗКА ИГРОВОГО МОДУЛЯ (A DESRT)
+-- ЗАГРУЗКА МОДУЛЯ ДЛЯ A DESERT
 -- ============================================
 local currentGameName = game.Name
 
 if string.find(currentGameName, "A desrt") or string.find(currentGameName, "A Desrt") or string.find(currentGameName, "desrt") then
     print("[ASTRA] Загружаю модуль A Desrt...")
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Raphatlia/ASTRA-Hub/main/A_Desrt_Module.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Raphatlia/ASTRA-Hub/main/AstraHub_A_Desrt.lua"))()
 elseif string.find(currentGameName, "A Long Road") or string.find(currentGameName, "Long Road") then
     print("[ASTRA] Загружаю модуль A Long Road...")
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Raphatlia/ASTRA-Hub/main/A_Long_Road_Module.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Raphatlia/ASTRA-Hub/main/AstraHub_A_Long_Road.lua"))()
 else
     print("[ASTRA] Игра не из списка поддержки: " .. currentGameName)
 end
