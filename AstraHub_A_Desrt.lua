@@ -1,4 +1,4 @@
--- ASTRA HUB — МОДУЛЬ ДЛЯ A DESERT (ESP + HUD)
+-- ASTRA HUB — МОДУЛЬ ДЛЯ A DESERT
 print("[ASTRA] Загрузка модуля A Desert...")
 
 repeat task.wait() until getgenv().AstraHubLoaded
@@ -7,14 +7,9 @@ local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 
 -- ============================================
--- ПЕРЕМЕННЫЕ (синхронизация с главным хабом)
+-- ESP ДЛЯ A DESERT
 -- ============================================
-getgenv().espEnabled = getgenv().espEnabled or false
-getgenv().espDistance = getgenv().espDistance or 1000
-
--- ============================================
--- ФУНКЦИИ ESP
--- ============================================
+local espDistance = shared.AstraSettings.ESPDistance or 1000
 
 local function createItemESP(instance, text, icon)
     if instance:FindFirstChild("ESP_Item") then return end
@@ -63,7 +58,6 @@ local function runItemESP()
             if not playerPos then continue end
             
             local espCount = 0
-            local espDistance = getgenv().espDistance or 1000
             
             for _, obj in pairs(workspace:GetDescendants()) do
                 if not getgenv().espEnabled then break end
@@ -117,8 +111,9 @@ local function runItemESP()
 end
 
 -- ============================================
--- ФУНКЦИЯ ВКЛЮЧЕНИЯ/ВЫКЛЮЧЕНИЯ ESP
+-- ПОДКЛЮЧАЕМ ФУНКЦИИ К GUI
 -- ============================================
+
 local function toggleESP(state)
     getgenv().espEnabled = state
     if state then
@@ -138,17 +133,7 @@ end
 -- Делаем функцию доступной для меню
 getgenv().toggleESP = toggleESP
 
--- ============================================
--- АВТО-ЗАПУСК ESP (если игра A Desert)
--- ============================================
+-- Автоматически включаем ESP
 task.wait(2)
-
-local currentGameName = game.Name
-if string.find(currentGameName, "A desrt") or string.find(currentGameName, "A Desrt") or string.find(currentGameName, "desrt") then
-    print("[ASTRA] Найдена A Desert! Запускаю ESP...")
-    toggleESP(true)
-else
-    print("[ASTRA] Модуль загружен, но игра не A Desert. ESP ожидает ручного включения.")
-end
-
-print("[ASTRA] Модуль A Desert загружен!")
+toggleESP(true)
+print("[ASTRA] Модуль A Desert загружен! ESP включён.")
