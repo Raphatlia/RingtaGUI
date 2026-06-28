@@ -1,8 +1,9 @@
--- ASTRA HUB V3.0 — МОДУЛЬНАЯ АРХИТЕКТУРА (ИСПРАВЛЕННАЯ ЗАГРУЗКА)
+-- ASTRA HUB V3.0 — АВТО-ЗАГРУЗКА МОДУЛЕЙ С GITHUB
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AstraGUI"
@@ -674,28 +675,36 @@ for i, btn in pairs(btnObjects) do
 end
 
 -- ============================================
--- ЗАГРУЗКА МОДУЛЕЙ (БЕЗ PCALL)
+-- АВТО-ЗАГРУЗКА МОДУЛЕЙ С GITHUB
 -- ============================================
-local function loadModule(name)
-    local module = game.ReplicatedStorage:FindFirstChild(name)
-    if module then
-        local loaded = require(module)
-        if loaded and type(loaded) == "table" then
-            print("[ASTRA] Модуль " .. name .. " успешно загружен!")
-            return loaded
-        end
+local function loadModuleFromGit(name, url)
+    local success, module = pcall(function()
+        local script = loadstring(game:HttpGet(url))()
+        return script
+    end)
+    if success and module and type(module) == "table" then
+        print("[ASTRA] Модуль " .. name .. " загружен с GitHub!")
+        return module
+    else
+        print("[ASTRA] Модуль " .. name .. " не загружен с GitHub.")
+        return nil
     end
-    print("[ASTRA] Модуль " .. name .. " не найден.")
-    return nil
 end
 
--- Загружаем модули
-local desrtModule = loadModule("AstraHub_A_Desrt")
-local longRoadModule = loadModule("AstraHub_A_Long_Road")
+-- Загружаем модули с GitHub
+task.wait(1) -- Даём время на загрузку
 
--- Если ни один модуль не загрузился — игра не поддерживается
-if not desrtModule and not longRoadModule then
-    print("[ASTRA] Игра не поддерживается. Модули не загружены.")
+local desrtModule = loadModuleFromGit("AstraHub_A_Desrt", "https://raw.githubusercontent.com/Raphatlia/ASTRA-Hub/main/AstraHub_A_Desrt.lua")
+local longRoadModule = loadModuleFromGit("AstraHub_A_Long_Road", "https://raw.githubusercontent.com/Raphatlia/ASTRA-Hub/main/AstraHub_A_Long_Road.lua")
+
+-- Если модуль загрузился, проверяем его
+if desrtModule then
+    print("[ASTRA] A Desert модуль активен!")
+    -- Здесь можно вызвать функции модуля
 end
 
-print("ASTRA HUB V3.0 — МОДУЛЬНАЯ АРХИТЕКТУРА ЗАГРУЖЕНА!")
+if longRoadModule then
+    print("[ASTRA] A Long Road модуль активен!")
+end
+
+print("ASTRA HUB V3.0 — АВТО-ЗАГРУЗКА МОДУЛЕЙ ЗАГРУЖЕНА!")
