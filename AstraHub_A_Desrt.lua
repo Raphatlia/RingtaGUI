@@ -1,10 +1,11 @@
--- ASTRA HUB — МОДУЛЬ ДЛЯ A DESERT (ДЕТЕКТОР ПО GUI)
+-- ASTRA HUB — МОДУЛЬ ДЛЯ A DESERT / A LONG ROAD (УНИВЕРСАЛЬНЫЙ ДЕТЕКТОР)
 local Module = {}
 
 -- ============================================
--- ОПРЕДЕЛЕНИЕ ИГРЫ ПО УНИКАЛЬНОМУ GUI
+-- УНИВЕРСАЛЬНЫЙ ДЕТЕКТОР ИГР
 -- ============================================
-local function IsDesrtGame()
+local function IsSupportedGame()
+    -- 1. Проверяем GUI (кнопки в меню)
     for _, obj in pairs(game:GetDescendants()) do
         if obj.Name == "Play" or obj.Name == "Changelog" or obj.Name == "Shop" then
             return true
@@ -12,23 +13,33 @@ local function IsDesrtGame()
         if obj.Name == "Join" or obj.Name == "Create" or obj.Name == "Exit" then
             return true
         end
-        if obj.Name == "Open Script" or obj.Name == "Ignition" then
-            return true
-        end
-        if obj.Name == "Sandbox+" then
+        if obj.Name == "Ignition" or obj.Name == "Open Script" then
             return true
         end
     end
+
+    -- 2. Проверяем наличие висящей "главной детали" машины
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then
+            local name = obj.Name
+            if name == "Main" or name == "Body" or name == "center" or name == "CarPart" or name == "Part" then
+                if obj.Parent.Name == "car" or obj.Parent.Name == "vehicle" then
+                    return true
+                end
+            end
+        end
+    end
+
     return false
 end
 
--- Если игра не A Desrt — отключаем модуль
-if not IsDesrtGame() then
-    print("[ASTRA] A Desert не обнаружена (GUI не найден). Модуль отключён.")
+-- Если игра не подходит — отключаем модуль
+if not IsSupportedGame() then
+    print("[ASTRA] Игра не поддерживается. Модуль отключён.")
     return Module
 end
 
-print("[ASTRA] A Desert обнаружена по GUI! Загружаю функции...")
+print("[ASTRA] Поддерживаемая игра обнаружена! Загружаю функции...")
 
 -- ============================================
 -- ВЕСЬ ФУНКЦИОНАЛ
@@ -144,14 +155,14 @@ local function toggleESP(state)
     if state then
         clearESP()
         getgenv().espThread = task.spawn(runItemESP)
-        print("[ASTRA] ESP включён (A Desert)")
+        print("[ASTRA] ESP включён")
     else
         if getgenv().espThread then
             task.cancel(getgenv().espThread)
             getgenv().espThread = nil
         end
         clearESP()
-        print("[ASTRA] ESP выключен (A Desert)")
+        print("[ASTRA] ESP выключен")
     end
 end
 
@@ -210,13 +221,13 @@ if Events then
         autoCollectEnabled = state
         if state then
             autoCollectLoop()
-            print("[ASTRA] Auto Collect: ON (A Desert)")
+            print("[ASTRA] Auto Collect: ON")
         else
             if collectThread then
                 task.cancel(collectThread)
                 collectThread = nil
             end
-            print("[ASTRA] Auto Collect: OFF (A Desert)")
+            print("[ASTRA] Auto Collect: OFF")
         end
     end)
 end
@@ -238,9 +249,9 @@ local function ApplySpeedBoost(state)
                 throttle.Value = math.clamp(throttle.Value * 2, 0, 1)
             end
         end)
-        print("[ASTRA] Speed Boost: ON (A Desert)")
+        print("[ASTRA] Speed Boost: ON")
     else
-        print("[ASTRA] Speed Boost: OFF (A Desert)")
+        print("[ASTRA] Speed Boost: OFF")
     end
 end
 
@@ -255,4 +266,4 @@ end
 -- ============================================
 task.wait(2)
 toggleESP(true)
-print("[ASTRA] Модуль A Desert загружен! ESP включён.")
+print("[ASTRA] Модуль загружен! ESP включён.")
