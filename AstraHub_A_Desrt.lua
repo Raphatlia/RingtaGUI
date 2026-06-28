@@ -1,33 +1,43 @@
--- ASTRA HUB — МОДУЛЬ ДЛЯ A DESERT (ДЕТЕКТОР ДВИЖЕНИЯ + ESP)
+-- ASTRA HUB — МОДУЛЬ ДЛЯ A DESERT (ДЕТЕКТОР ПО GUI)
 local Module = {}
-local Players = game:GetService("Players")
-local LP = Players.LocalPlayer
 
 -- ============================================
--- ПРОВЕРКА: ЕСТЬ ЛИ РЯДОМ ХАРАКТЕРНЫЕ ОБЪЕКТЫ
+-- ОПРЕДЕЛЕНИЕ ИГРЫ ПО УНИКАЛЬНОМУ GUI
 -- ============================================
 local function IsDesrtGame()
-    if not LP.Character then return false end
-    local root = LP.Character:FindFirstChild("HumanoidRootPart")
-    if not root then return false end
-
-    local radius = 300
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then
-            if root.Position:Distance(obj.Position) < radius then
-                local name = obj.Name
-                if name == "Car" or name == "Zombie" or name == "Crate" or 
-                   name == "Radiator" or name == "Engine" or name == "Barrel" then
-                    return true
-                end
-            end
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj.Name == "Play" or obj.Name == "Changelog" or obj.Name == "Shop" then
+            return true
+        end
+        if obj.Name == "Join" or obj.Name == "Create" or obj.Name == "Exit" then
+            return true
+        end
+        if obj.Name == "Open Script" or obj.Name == "Ignition" then
+            return true
+        end
+        if obj.Name == "Sandbox+" then
+            return true
         end
     end
     return false
 end
 
+-- Если игра не A Desrt — отключаем модуль
+if not IsDesrtGame() then
+    print("[ASTRA] A Desert не обнаружена (GUI не найден). Модуль отключён.")
+    return Module
+end
+
+print("[ASTRA] A Desert обнаружена по GUI! Загружаю функции...")
+
 -- ============================================
--- ФУНКЦИИ ESP
+-- ВЕСЬ ФУНКЦИОНАЛ
+-- ============================================
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+
+-- ============================================
+-- ESP
 -- ============================================
 local espEnabled = false
 local espDistance = 1000
@@ -241,18 +251,8 @@ if Events then
 end
 
 -- ============================================
--- ЦИКЛИЧЕСКАЯ ПРОВЕРКА (ОБНАРУЖЕНИЕ ИГРЫ)
+-- АВТО-ЗАПУСК ESP
 -- ============================================
-task.spawn(function()
-    while true do
-        if IsDesrtGame() then
-            print("[ASTRA] A Desert обнаружена! Загружаю функции...")
-            task.wait(2)
-            toggleESP(true)
-            break
-        end
-        task.wait(2)
-    end
-end)
-
-print("[ASTRA] Модуль A Desert загружен! Ожидаю обнаружения игры...")
+task.wait(2)
+toggleESP(true)
+print("[ASTRA] Модуль A Desert загружен! ESP включён.")
