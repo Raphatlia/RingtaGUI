@@ -1,18 +1,48 @@
--- ASTRA HUB — МОДУЛЬ ДЛЯ A DESERT
+-- ASTRA HUB — МОДУЛЬ ДЛЯ A DESERT (ОПРЕДЕЛЕНИЕ ПО СИГНАТУРЕ)
 print("[ASTRA] Загрузка модуля A Desert...")
 
-repeat task.wait() until getgenv().AstraHubLoaded
+-- ============================================
+-- ОПРЕДЕЛЕНИЕ ИГРЫ ПО УНИКАЛЬНЫМ ОБЪЕКТАМ
+-- ============================================
+local GAME_SIGNATURES = {
+    "SupplyCrate",   -- ящики с припасами
+    "gas_station",   -- заправка
+    "zombie",        -- зомби
+    "Desrt",         -- часть названия моделей
+    "sandbox",       -- папка с объектами
+}
 
+local function IsDesrtGame()
+    for _, name in pairs(GAME_SIGNATURES) do
+        local found = workspace:FindFirstChild(name, true)
+        if found then return true end
+        
+        local foundRS = game.ReplicatedStorage:FindFirstChild(name, true)
+        if foundRS then return true end
+    end
+    return false
+end
+
+-- Если игра не подходит — отключаем модуль
+if not IsDesrtGame() then
+    print("[ASTRA] A Desert не обнаружена. Модуль отключён.")
+    return {}
+end
+
+print("[ASTRA] A Desert обнаружена! Загружаю функции...")
+
+-- ============================================
+-- ДАЛЬШЕ ВЕСЬ ТВОЙ КОД ESP, HUD, АВТО-СБОР
+-- ============================================
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 
--- Получаем глобальные переменные
-local espEnabled = getgenv().espEnabled
-local espDistance = getgenv().espDistance or 1000
+-- ============================================
+-- ESP
+-- ============================================
+local espEnabled = false
+local espDistance = 1000
 
--- ============================================
--- ФУНКЦИИ ESP
--- ============================================
 local function createItemESP(instance, text, icon)
     if instance:FindFirstChild("ESP_Item") then return end
     local gui = Instance.new("BillboardGui")
@@ -44,9 +74,7 @@ end
 
 local function clearESP()
     for _, v in pairs(workspace:GetDescendants()) do
-        if v.Name == "ESP_Item" then
-            v:Destroy()
-        end
+        if v.Name == "ESP_Item" then v:Destroy() end
     end
 end
 
@@ -63,7 +91,7 @@ local function runItemESP()
             
             for _, obj in pairs(workspace:GetDescendants()) do
                 if not getgenv().espEnabled then break end
-                if espCount >= 75 then break end
+                if espCount >= 35 then break end
                 
                 if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then
                     local model = obj.Parent
@@ -112,9 +140,6 @@ local function runItemESP()
     end)
 end
 
--- ============================================
--- ФУНКЦИЯ ВКЛЮЧЕНИЯ ESP
--- ============================================
 local function toggleESP(state)
     getgenv().espEnabled = state
     if state then
@@ -134,7 +159,11 @@ end
 -- Делаем функцию доступной для меню
 getgenv().toggleESP = toggleESP
 
--- Автоматически включаем ESP
+-- ============================================
+-- АВТО-ЗАПУСК ESP
+-- ============================================
 task.wait(2)
+print("[ASTRA] A Desert: ESP включён автоматически!")
 toggleESP(true)
-print("[ASTRA] Модуль A Desert загружен! ESP включён.")
+
+print("[ASTRA] Модуль A Desert загружен!")
