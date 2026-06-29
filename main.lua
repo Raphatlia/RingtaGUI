@@ -1,4 +1,4 @@
--- ASTRA HUB V3.0 — С ЛОГОТИПОМ В ШАПКЕ
+-- ASTRA HUB V3.0 — С ЛОГОТИПОМ (ScreenGui)
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
@@ -76,6 +76,18 @@ btnCorner.CornerRadius = UDim.new(1, 0)
 btnCorner.Parent = floatingBtn
 
 -- ============================================
+-- ЛОГОТИП (НА ЭКРАНЕ)
+-- ============================================
+local logo = Instance.new("ImageLabel")
+logo.Size = UDim2.new(0, 35, 0, 35)
+logo.Position = UDim2.new(0, 10, 0.5, 0)
+logo.AnchorPoint = Vector2.new(0, 0.5)
+logo.BackgroundTransparency = 1
+logo.Image = "rbxassetid://122436059977461"
+logo.ZIndex = 999
+logo.Parent = ScreenGui
+
+-- ============================================
 -- ФУНКЦИИ ОТКРЫТИЯ/ЗАКРЫТИЯ
 -- ============================================
 local function openMenu()
@@ -133,7 +145,7 @@ mainCorner.CornerRadius = UDim.new(0, 16)
 mainCorner.Parent = mainFrame
 
 -- ============================================
--- ШАПКА (С ЛОГОТИПОМ)
+-- ШАПКА
 -- ============================================
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1, 0, 0, 44)
@@ -145,18 +157,9 @@ local headerCorner = Instance.new("UICorner")
 headerCorner.CornerRadius = UDim.new(0, 16)
 headerCorner.Parent = header
 
--- ЛОГОТИП (ID: 91782228545737)
-local logo = Instance.new("ImageLabel")
-logo.Size = UDim2.new(0, 32, 0, 32)
-logo.Position = UDim2.new(0, 8, 0.5, 0)
-logo.AnchorPoint = Vector2.new(0, 0.5)
-logo.Image = "rbxassetid://91782228545737"
-logo.BackgroundTransparency = 1
-logo.Parent = header
-
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0.5, 0, 1, 0)
-title.Position = UDim2.new(0, 44, 0, 0)
+title.Position = UDim2.new(0, 12, 0, 0)
 title.BackgroundTransparency = 1
 title.Text = "ASTRA HUB"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -712,4 +715,4 @@ if longRoadModule then
     print("[ASTRA] A Long Road модуль активен!")
 end
 
-print("ASTRA HUB V3.0 — С ЛОГОТИПОМ В ШАПКЕ!")
+print("ASTRA HUB V3.0 — С ЛОГОТИПОМ НА ЭКРАНЕ ЗАГРУЖЕНА!")
