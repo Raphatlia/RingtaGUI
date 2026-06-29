@@ -1,4 +1,4 @@
--- ASTRA HUB V3.0 — С ЛОГОТИПОМ (ГОТОВАЯ ВЕРСИЯ)
+-- ASTRA HUB V3.0 — С ЛОГОТИПОМ В ШАПКЕ
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
@@ -152,7 +152,7 @@ logo.Position = UDim2.new(0, 8, 0.5, 0)
 logo.AnchorPoint = Vector2.new(0, 0.5)
 logo.Image = "rbxassetid://91782228545737"
 logo.BackgroundTransparency = 1
-logo.Parent = header  -- <--- ПРИВЯЗАЛИ К ШАПКЕ!
+logo.Parent = header
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(0.5, 0, 1, 0)
@@ -712,4 +712,4 @@ if longRoadModule then
     print("[ASTRA] A Long Road модуль активен!")
 end
 
-print("ASTRA HUB V3.0 — С ЛОГОТИПОМ ЗАГРУЖЕНА!")
+print("ASTRA HUB V3.0 — С ЛОГОТИПОМ В ШАПКЕ!")
