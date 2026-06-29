@@ -1,4 +1,4 @@
--- ASTRA HUB V3.0 — ИСПРАВЛЕННЫЙ ФИНАЛ (АККОРДЕОНЫ + ТЕМЫ + ЛОГО)
+-- ASTRA HUB V3.0 — ИДЕАЛЬНЫЕ АККОРДЕОНЫ (БЕЗ НАЕЗЖАНИЯ)
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
@@ -78,7 +78,7 @@ btnCorner.CornerRadius = UDim.new(1, 0)
 btnCorner.Parent = floatingBtn
 
 -- ============================================
--- ЛОГОТИП (ЧЁРНЫЙ ФОН)
+-- ЛОГОТИП
 -- ============================================
 local logo = Instance.new("ImageLabel")
 logo.Size = UDim2.new(0, 30, 0, 30)
@@ -383,7 +383,7 @@ local function createAeroCard(parent, title, yPos, defaultOn, callback)
 end
 
 -- ============================================
--- АККОРДЕОН С UIListLayout
+-- ИДЕАЛЬНЫЙ АККОРДЕОН (С UIListLayout)
 -- ============================================
 local function createAccordion(parent, title, yPos, elements)
     local headerBtn = Instance.new("TextButton")
@@ -409,7 +409,7 @@ local function createAccordion(parent, title, yPos, elements)
     container.ClipsDescendants = true
     container.Parent = parent
 
-    -- UIListLayout для автоматического расположения
+    -- ГЛАВНОЕ: UIListLayout для автоматического смещения
     local layout = Instance.new("UIListLayout")
     layout.SortOrder = Enum.SortOrder.LayoutOrder
     layout.Padding = UDim.new(0, 4)
@@ -465,7 +465,7 @@ createAccordion(featuresContent, "⚔️ Combat", 68, {
 featuresContent.CanvasSize = UDim2.new(0, 0, 0, 150)
 
 -- ============================================
--- SETTINGS (С ВЫБОРОМ ТЕМ)
+-- SETTINGS
 -- ============================================
 local settingsContent = contents[2]
 settingsContent.CanvasSize = UDim2.new(0, 0, 0, 200)
@@ -746,4 +746,4 @@ if longRoadModule then
     print("[ASTRA] A Long Road модуль активен!")
 end
 
-print("ASTRA HUB V3.0 — ИСПРАВЛЕННЫЙ ФИНАЛ ЗАГРУЖЕН!")
+print("ASTRA HUB V3.0 — ИДЕАЛЬНЫЕ АККОРДЕОНЫ ЗАГРУЖЕНЫ!")
